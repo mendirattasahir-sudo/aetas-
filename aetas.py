@@ -168,4 +168,4 @@ FCF Coverage: {fcf_coverage}x
             except Exception as e:
                 st.error("Could not retrieve data for this ticker. Please check the symbol and try again.")
 
-st.markdown('<div class="footer-text">Aetas · Built by Sahir Mendiratta · Powered by Groq + yfinance</div>', unsafe_allow_html=True)
+st.markdown('<div class="footer-text">Aetas · Built by Sahir Mendiratta</div>', unsafe_allow_html=True)
