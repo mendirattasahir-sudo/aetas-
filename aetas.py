@@ -163,7 +163,7 @@ companies = {
     "Indian Oil": "IOC.NS",
     "GAIL": "GAIL.NS",}
 
-selected_company = st.selectbox("", options=[""] + list(companies.keys()), format_func=lambda x: "Search for a company — e.g. HDFC Bank" if x == "" else x)
+selected_company = st.selectbox("", options=list(companies.keys()), index=None, placeholder="Search for a company — e.g. HDFC Bank")
 ticker = companies.get(selected_company, "")
 generate = st.button("Generate")
 
