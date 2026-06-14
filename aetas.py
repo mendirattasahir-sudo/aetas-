@@ -204,7 +204,7 @@ FCF Coverage: {fcf_coverage}x
 
                     col1, col2, col3, col4 = st.columns(4)
                     col1.metric("Revenue", f"₹{round(revenue/1e9, 1)}K Cr")
-col2.metric("EBITDA", f"₹{round(ebitda/1e9, 1)}K Cr")
+                    col2.metric("EBITDA", f"₹{round(ebitda/1e9, 1)}K Cr")
                     col3.metric("Leverage", f"{leverage}x")
                     col4.metric("FCF Cover", f"{fcf_coverage}x")
 
