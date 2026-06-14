@@ -10,7 +10,9 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 st.set_page_config(page_title="Aetas", page_icon="●", layout="centered")
 
 st.markdown("""
-<style>
+<style>[data-testid="stMetricValue"] {
+        font-size: 16px !important;
+    }
     .stApp { background-color: #000000; }
     .block-container { max-width: 700px; padding-top: 3rem; }
     h1 {
