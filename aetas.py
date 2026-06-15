@@ -177,7 +177,7 @@ if generate:
             try:
                 stock = yf.Ticker(ticker)
                 info = stock.info
-
+                
                     company = info.get('longName', 'N/A')
                     sector = info.get('sector', 'N/A')
                     revenue = info.get('totalRevenue', 0)
