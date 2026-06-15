@@ -221,7 +221,6 @@ FCF Coverage: {fcf_coverage}x
                     col4.metric("FCF Cover", f"{fcf_coverage}x")
 
                     col5, col6, col7, col8 = st.columns(4)
-                    if net_debt < 0:
                  if net_debt < 0:
                     col5.metric("Net Cash", f"₹{round(abs(net_debt)/1e9, 1)}K Cr")
                  else:
