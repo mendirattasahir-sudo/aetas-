@@ -179,18 +179,25 @@ if generate:
                 info = stock.info
 
                 company = info.get('longName', 'N/A')
-                sector = info.get('sector', 'N/A')
-                revenue = info.get('totalRevenue', 0)
-                ebitda = info.get('ebitda', 0)
-                total_debt = info.get('totalDebt', 0)
-                fcf = info.get('freeCashflow', 0)
-
+                    sector = info.get('sector', 'N/A')
+                    revenue = info.get('totalRevenue', 0)
+                    ebitda = info.get('ebitda', 0)
+                    total_debt = info.get('totalDebt', 0)
+                    fcf = info.get('freeCashflow', 0)
+                    cash = info.get('totalCash', 0)
+                    current_assets = info.get('totalCurrentAssets', 0)
+                    current_liabilities = info.get('totalCurrentLiabilities', 0)
+                    interest_expense = info.get('interestExpense', 0)
+                    roe = info.get('returnOnEquity', 0)
                 if not revenue:
                     st.error("Data not available for this ticker. Try a different NSE-listed company.")
                 else:
                     leverage = round(total_debt / ebitda, 2) if ebitda else 0
                     fcf_coverage = round(fcf / total_debt, 2) if total_debt else 0
-
+                    net_debt = total_debt - cash
+                    current_ratio = round(current_assets / current_liabilities, 2) if current_liabilities else 0
+                    interest_coverage = round(ebitda / abs(interest_expense), 2) if interest_expense else 0
+                    roe_pct = round(roe * 100, 1) if roe else 0
                     financials_summary = f"""
 Company: {company}
 Revenue: ₹{round(revenue/1e7):,} Cr
@@ -204,20 +211,63 @@ FCF Coverage: {fcf_coverage}x
                     st.markdown(f'<div class="company-name">{company}</div>', unsafe_allow_html=True)
                     st.markdown(f'<div class="ticker-label">{ticker.upper()} · {sector}</div>', unsafe_allow_html=True)
 
-                    col1, col2, col3, col4 = st.columns(4)
+                   col1, col2, col3, col4 = st.columns(4)
                     col1.metric("Revenue", f"₹{round(revenue/1e9, 1)}K Cr")
                     col2.metric("EBITDA", f"₹{round(ebitda/1e9, 1)}K Cr")
                     col3.metric("Leverage", f"{leverage}x")
                     col4.metric("FCF Cover", f"{fcf_coverage}x")
 
+                    col5, col6, col7, col8 = st.columns(4)
+                    col5.metric("Net Debt", f"₹{round(net_debt/1e9, 1)}K Cr")
+                    col6.metric("Current Ratio", f"{current_ratio}x")
+                    col7.metric("Interest Cover", f"{interest_coverage}x")
+                    col8.metric("ROE", f"{roe_pct}%")
+
                     st.write("")
+                   # Credit Grade Scoring
+                    score = 0
+                    if leverage < 2: score += 3
+                    elif leverage < 4: score += 2
+                    elif leverage < 6: score += 1
+
+                    if fcf_coverage > 2: score += 3
+                    elif fcf_coverage > 1: score += 2
+                    elif fcf_coverage > 0: score += 1
+
+                    if interest_coverage > 5: score += 3
+                    elif interest_coverage > 2: score += 2
+                    elif interest_coverage > 1: score += 1
+
+                    if current_ratio > 1.5: score += 2
+                    elif current_ratio > 1: score += 1
+
+                    if score >= 10:
+                        grade = "AAA"
+                        grade_color = "success"
+                    elif score >= 8:
+                        grade = "AA"
+                        grade_color = "success"
+                    elif score >= 6:
+                        grade = "A"
+                        grade_color = "success"
+                    elif score >= 4:
+                        grade = "BBB"
+                        grade_color = "warning"
+                    elif score >= 2:
+                        grade = "BB"
+                        grade_color = "warning"
+                    else:
+                        grade = "B"
+                        grade_color = "error"
+
+                    st.markdown(f'<div style="text-align:center; margin: 1.5rem 0;"><span style="font-family:Georgia,serif; font-size:48px; font-weight:500; color:#ffffff; letter-spacing:4px;">{grade}</span><br><span style="font-size:10px; color:#5a5a5a; letter-spacing:2px; text-transform:uppercase;">Aetas Credit Grade</span></div>', unsafe_allow_html=True)
+
                     if leverage < 3:
                         st.success("LOW LEVERAGE — STRONG CREDIT PROFILE")
                     elif leverage < 5:
                         st.warning("MODERATE LEVERAGE — MONITOR CLOSELY")
                     else:
                         st.error("HIGH LEVERAGE — ELEVATED CREDIT RISK")
-
                     response = client.chat.completions.create(
                         model="llama-3.3-70b-versatile",
                         messages=[
