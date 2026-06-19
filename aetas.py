@@ -186,10 +186,21 @@ if generate:
                 total_debt = info.get('totalDebt', 0)
                 fcf = info.get('freeCashflow', 0)
                 cash = info.get('totalCash', 0)
-                current_assets = info.get('totalCurrentAssets', 0)
-                current_liabilities = info.get('totalCurrentLiabilities', 0)
-                interest_expense = info.get('interestExpense', 0)
                 roe = info.get('returnOnEquity', 0)
+
+                try:
+                    bs = stock.balance_sheet
+                    current_assets = float(bs.loc['Current Assets'].iloc[0]) if 'Current Assets' in bs.index else 0
+                    current_liabilities = float(bs.loc['Current Liabilities'].iloc[0]) if 'Current Liabilities' in bs.index else 0
+                except Exception:
+                    current_assets = 0
+                    current_liabilities = 0
+
+                try:
+                    inc = stock.income_stmt
+                    interest_expense = float(inc.loc['Interest Expense'].iloc[0]) if 'Interest Expense' in inc.index else 0
+                except Exception:
+                    interest_expense = 0
 
                 if not revenue:
                     st.error("Data not available for this ticker. Try a different NSE-listed company.")
@@ -223,7 +234,7 @@ FCF Coverage: {fcf_coverage}x
                     col5, col6, col7, col8 = st.columns(4)
                     net_debt_label = "Net Cash" if net_debt < 0 else "Net Debt"
                     net_debt_value = f"₹{round(abs(net_debt)/1e9, 1)}K Cr"
-                    col5.metric(net_debt_label, net_debt_value)                 
+                    col5.metric(net_debt_label, net_debt_value)
                     col6.metric("Current Ratio", f"{current_ratio}x")
                     col7.metric("Interest Cover", f"{interest_coverage}x")
                     col8.metric("ROE", f"{roe_pct}%")
