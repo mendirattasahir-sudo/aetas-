@@ -102,7 +102,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown("<h1>AETAS</h1>", unsafe_allow_html=True)
-st.markdown('<div class="tagline">AI Credit Underwriting · NSE Listed Companies</div>', unsafe_allow_html=True)
+st.markdown('<div class="tagline">AI Credit Underwriting · NSE & BSE Listed Companies</div>', unsafe_allow_html=True)
 
 companies = {
     "TCS": "TCS.NS",
@@ -202,6 +202,12 @@ if generate:
                 except Exception:
                     interest_expense = 0
 
+                try:
+                    news = stock.news[:5]
+                    news_text = "\n".join([f"- {n.get('content', {}).get('title', '')}" for n in news]) if news else "No recent news available."
+                except Exception:
+                    news_text = "No recent news available."
+
                 if not revenue:
                     st.error("Data not available for this ticker. Try a different NSE-listed company.")
                 else:
@@ -214,12 +220,19 @@ if generate:
 
                     financials_summary = f"""
 Company: {company}
+Sector: {sector}
 Revenue: ₹{round(revenue/1e7):,} Cr
 EBITDA: ₹{round(ebitda/1e7):,} Cr
 Total Debt: ₹{round(total_debt/1e7):,} Cr
 Free Cash Flow: ₹{round(fcf/1e7):,} Cr
 Debt/EBITDA Leverage: {leverage}x
 FCF Coverage: {fcf_coverage}x
+Interest Coverage: {interest_coverage}x
+Current Ratio: {current_ratio}x
+ROE: {roe_pct}%
+
+Recent News Headlines:
+{news_text}
 """
 
                     st.markdown(f'<div class="company-name">{company}</div>', unsafe_allow_html=True)
@@ -279,10 +292,13 @@ FCF Coverage: {fcf_coverage}x
                     else:
                         st.error("HIGH LEVERAGE — ELEVATED CREDIT RISK")
 
+                    st.markdown('<div class="memo-label">Recent News</div>', unsafe_allow_html=True)
+                    st.markdown(news_text)
+
                     response = client.chat.completions.create(
                         model="llama-3.3-70b-versatile",
                         messages=[
-                            {"role": "system", "content": "You are a senior credit analyst at a private credit fund. Write concise, professional credit memos with three clearly labeled sections: Investment Thesis, Key Risks, Recommendation. Each section should be 2-3 sentences max."},
+                            {"role": "system", "content": "You are a senior credit analyst at a private credit fund. Write concise, professional credit memos with three clearly labeled sections: Investment Thesis, Key Risks, Recommendation. Each section should be 2-3 sentences max. Use the financial ratios AND the recent news headlines provided to make the memo specific and grounded in real context, not generic."},
                             {"role": "user", "content": f"Write a credit memo for the following company.\n\n{financials_summary}"}
                         ]
                     )
