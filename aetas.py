@@ -210,6 +210,64 @@ def resolve_ticker(user_input):
     return cleaned
 
 
+def get_trend_data(stock):
+    """Pulls up to 3 years of revenue, EBITDA and debt to detect direction of travel."""
+    try:
+        fin = stock.financials
+        bs = stock.balance_sheet
+        years = list(fin.columns[:3]) if not fin.empty else []
+
+        trend_rows = []
+        for year in years:
+            try:
+                rev = float(fin.loc['Total Revenue', year]) if 'Total Revenue' in fin.index else None
+            except Exception:
+                rev = None
+            try:
+                ebt = float(fin.loc['EBITDA', year]) if 'EBITDA' in fin.index else None
+            except Exception:
+                ebt = None
+            try:
+                debt = float(bs.loc['Total Debt', year]) if 'Total Debt' in bs.index else None
+            except Exception:
+                debt = None
+            trend_rows.append({"year": str(year.year), "revenue": rev, "ebitda": ebt, "debt": debt})
+
+        return trend_rows
+    except Exception:
+        return []
+
+
+def summarize_trend(trend_rows):
+    """Turns raw multi-year numbers into a plain-English description of what's changing."""
+    if len(trend_rows) < 2:
+        return "Insufficient historical data to establish a multi-year trend."
+
+    oldest = trend_rows[-1]
+    newest = trend_rows[0]
+    lines = []
+
+    if oldest.get("revenue") and newest.get("revenue"):
+        rev_change = ((newest["revenue"] - oldest["revenue"]) / oldest["revenue"]) * 100
+        lines.append(f"Revenue {'grew' if rev_change >= 0 else 'declined'} {abs(round(rev_change, 1))}% from {oldest['year']} to {newest['year']}.")
+
+    if oldest.get("debt") and newest.get("debt"):
+        debt_change = ((newest["debt"] - oldest["debt"]) / oldest["debt"]) * 100
+        lines.append(f"Total debt {'increased' if debt_change >= 0 else 'decreased'} {abs(round(debt_change, 1))}% over the same period.")
+
+    if oldest.get("ebitda") and newest.get("ebitda"):
+        ebitda_change = ((newest["ebitda"] - oldest["ebitda"]) / oldest["ebitda"]) * 100
+        lines.append(f"EBITDA {'grew' if ebitda_change >= 0 else 'declined'} {abs(round(ebitda_change, 1))}% over the same period.")
+
+    if oldest.get("revenue") and newest.get("revenue") and oldest.get("debt") and newest.get("debt"):
+        rev_change = ((newest["revenue"] - oldest["revenue"]) / oldest["revenue"]) * 100
+        debt_change = ((newest["debt"] - oldest["debt"]) / oldest["debt"]) * 100
+        if debt_change > rev_change + 10:
+            lines.append("FLAG: Debt is growing meaningfully faster than revenue, a classic early warning sign of deteriorating credit quality.")
+
+    return " ".join(lines) if lines else "Trend data available but incomplete for full analysis."
+
+
 def analyze_company(ticker):
     stock = yf.Ticker(ticker)
     info = stock.info
@@ -222,6 +280,9 @@ def analyze_company(ticker):
     fcf = info.get('freeCashflow', 0)
     cash = info.get('totalCash', 0)
     roe = info.get('returnOnEquity', 0)
+
+    trend_rows = get_trend_data(stock)
+    trend_summary = summarize_trend(trend_rows)
 
     try:
         bs = stock.balance_sheet
@@ -306,6 +367,8 @@ Interest Coverage: {interest_coverage}x
 Current Ratio: {current_ratio}x
 ROE: {roe_pct}%
 
+3-Year Trend: {trend_summary}
+
 Recent News Headlines:
 {news_text}
 """
@@ -326,6 +389,8 @@ Recent News Headlines:
         "score": score,
         "news_text": news_text,
         "financials_summary": financials_summary,
+        "trend_rows": trend_rows,
+        "trend_summary": trend_summary,
     }
 
 
@@ -357,12 +422,28 @@ def render_metrics(result):
     else:
         st.error("HIGH LEVERAGE - ELEVATED CREDIT RISK")
 
+    trend_rows = result.get("trend_rows", [])
+    if len(trend_rows) >= 2:
+        st.markdown('<div class="memo-label">3-Year Trend</div>', unsafe_allow_html=True)
+        chart_data = {}
+        years_sorted = list(reversed(trend_rows))
+        labels = [r["year"] for r in years_sorted]
+        revenues = [r["revenue"] / 1e7 if r["revenue"] else None for r in years_sorted]
+        debts = [r["debt"] / 1e7 if r["debt"] else None for r in years_sorted]
+        try:
+            import pandas as pd
+            chart_df = pd.DataFrame({"Revenue (Rs Cr)": revenues, "Total Debt (Rs Cr)": debts}, index=labels)
+            st.line_chart(chart_df)
+        except Exception:
+            pass
+        st.caption(result.get("trend_summary", ""))
+
 
 def generate_memo(financials_summary):
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[
-            {"role": "system", "content": "You are a senior credit analyst at a private credit fund. Write concise, professional credit memos with three clearly labeled sections: Investment Thesis, Key Risks, Recommendation. Each section should be 2-3 sentences max. Use the financial ratios AND the recent news headlines provided to make the memo specific and grounded in real context, not generic."},
+            {"role": "system", "content": "You are a senior credit analyst at a private credit fund. Write concise, professional credit memos with three clearly labeled sections: Investment Thesis, Key Risks, Recommendation. Each section should be 2-3 sentences max. The 3-Year Trend line is the most important input - lead with what is CHANGING over time (improving or deteriorating), not just the current snapshot. If debt is growing faster than revenue or EBITDA, treat this as the central risk in your analysis. Use the recent news headlines to add real-world context, not generic language."},
             {"role": "user", "content": f"Write a credit memo for the following company.\n\n{financials_summary}"}
         ]
     )
