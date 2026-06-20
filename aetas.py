@@ -105,73 +105,109 @@ st.markdown("""
         letter-spacing: 4px;
         margin: 2rem 0;
     }
+    div[role="radiogroup"] {
+        gap: 8px;
+    }
+    div[role="radiogroup"] label {
+        background-color: #0a0a0a;
+        border: 0.5px solid #2a2a2a;
+        border-radius: 6px;
+        padding: 8px 16px !important;
+        margin: 0 !important;
+    }
+    div[role="radiogroup"] label:has(input:checked) {
+        background-color: #ffffff;
+        border-color: #ffffff;
+    }
+    div[role="radiogroup"] label:has(input:checked) p {
+        color: #000000 !important;
+    }
+    div[role="radiogroup"] input {
+        accent-color: #ffffff;
+    }
+    div[role="radiogroup"] p {
+        color: #e5e5e5;
+        font-size: 13px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 st.markdown("<h1>AETAS</h1>", unsafe_allow_html=True)
-st.markdown('<div class="tagline">AI Credit Underwriting · NSE & BSE Listed Companies</div>', unsafe_allow_html=True)
+st.markdown('<div class="tagline">AI Credit Underwriting · NSE Listed Companies</div>', unsafe_allow_html=True)
 
 companies = {
-    "TCS": {"NSE": "TCS.NS", "BSE": "TCS.BO"},
-    "Reliance Industries": {"NSE": "RELIANCE.NS", "BSE": "RELIANCE.BO"},
-    "HDFC Bank": {"NSE": "HDFCBANK.NS", "BSE": "HDFCBANK.BO"},
-    "Infosys": {"NSE": "INFY.NS", "BSE": "INFY.BO"},
-    "ICICI Bank": {"NSE": "ICICIBANK.NS", "BSE": "ICICIBANK.BO"},
-    "Hindustan Unilever": {"NSE": "HINDUNILVR.NS", "BSE": "HINDUNILVR.BO"},
-    "ITC": {"NSE": "ITC.NS", "BSE": "ITC.BO"},
-    "State Bank of India": {"NSE": "SBIN.NS", "BSE": "SBIN.BO"},
-    "Bharti Airtel": {"NSE": "BHARTIARTL.NS", "BSE": "BHARTIARTL.BO"},
-    "Tata Motors": {"NSE": "TATAMOTORS.NS", "BSE": "TATAMOTORS.BO"},
-    "Wipro": {"NSE": "WIPRO.NS", "BSE": "WIPRO.BO"},
-    "Asian Paints": {"NSE": "ASIANPAINT.NS", "BSE": "ASIANPAINT.BO"},
-    "Maruti Suzuki": {"NSE": "MARUTI.NS", "BSE": "MARUTI.BO"},
-    "Larsen & Toubro": {"NSE": "LT.NS", "BSE": "LT.BO"},
-    "Axis Bank": {"NSE": "AXISBANK.NS", "BSE": "AXISBANK.BO"},
-    "Bajaj Finance": {"NSE": "BAJFINANCE.NS", "BSE": "BAJFINANCE.BO"},
-    "Kotak Mahindra Bank": {"NSE": "KOTAKBANK.NS", "BSE": "KOTAKBANK.BO"},
-    "HCL Technologies": {"NSE": "HCLTECH.NS", "BSE": "HCLTECH.BO"},
-    "Sun Pharma": {"NSE": "SUNPHARMA.NS", "BSE": "SUNPHARMA.BO"},
-    "Tata Steel": {"NSE": "TATASTEEL.NS", "BSE": "TATASTEEL.BO"},
-    "Adani Enterprises": {"NSE": "ADANIENT.NS", "BSE": "ADANIENT.BO"},
-    "Adani Ports": {"NSE": "ADANIPORTS.NS", "BSE": "ADANIPORTS.BO"},
-    "Bajaj Auto": {"NSE": "BAJAJ-AUTO.NS", "BSE": "BAJAJ-AUTO.BO"},
-    "Bajaj Finserv": {"NSE": "BAJAJFINSV.NS", "BSE": "BAJAJFINSV.BO"},
-    "Bharat Petroleum": {"NSE": "BPCL.NS", "BSE": "BPCL.BO"},
-    "Britannia": {"NSE": "BRITANNIA.NS", "BSE": "BRITANNIA.BO"},
-    "Cipla": {"NSE": "CIPLA.NS", "BSE": "CIPLA.BO"},
-    "Coal India": {"NSE": "COALINDIA.NS", "BSE": "COALINDIA.BO"},
-    "Divi's Laboratories": {"NSE": "DIVISLAB.NS", "BSE": "DIVISLAB.BO"},
-    "Dr Reddy's Labs": {"NSE": "DRREDDY.NS", "BSE": "DRREDDY.BO"},
-    "Eicher Motors": {"NSE": "EICHERMOT.NS", "BSE": "EICHERMOT.BO"},
-    "Grasim Industries": {"NSE": "GRASIM.NS", "BSE": "GRASIM.BO"},
-    "HDFC Life": {"NSE": "HDFCLIFE.NS", "BSE": "HDFCLIFE.BO"},
-    "Hero MotoCorp": {"NSE": "HEROMOTOCO.NS", "BSE": "HEROMOTOCO.BO"},
-    "Hindalco": {"NSE": "HINDALCO.NS", "BSE": "HINDALCO.BO"},
-    "IndusInd Bank": {"NSE": "INDUSINDBK.NS", "BSE": "INDUSINDBK.BO"},
-    "JSW Steel": {"NSE": "JSWSTEEL.NS", "BSE": "JSWSTEEL.BO"},
-    "Mahindra & Mahindra": {"NSE": "M&M.NS", "BSE": "M&M.BO"},
-    "Nestle India": {"NSE": "NESTLEIND.NS", "BSE": "NESTLEIND.BO"},
-    "NTPC": {"NSE": "NTPC.NS", "BSE": "NTPC.BO"},
-    "ONGC": {"NSE": "ONGC.NS", "BSE": "ONGC.BO"},
-    "Power Grid": {"NSE": "POWERGRID.NS", "BSE": "POWERGRID.BO"},
-    "Tata Consumer Products": {"NSE": "TATACONSUM.NS", "BSE": "TATACONSUM.BO"},
-    "Tech Mahindra": {"NSE": "TECHM.NS", "BSE": "TECHM.BO"},
-    "Titan Company": {"NSE": "TITAN.NS", "BSE": "TITAN.BO"},
-    "UltraTech Cement": {"NSE": "ULTRACEMCO.NS", "BSE": "ULTRACEMCO.BO"},
-    "Zomato": {"NSE": "ZOMATO.NS", "BSE": "ZOMATO.BO"},
-    "Paytm": {"NSE": "PAYTM.NS", "BSE": "PAYTM.BO"},
-    "Nykaa": {"NSE": "NYKAA.NS", "BSE": "NYKAA.BO"},
-    "Vedanta": {"NSE": "VEDL.NS", "BSE": "VEDL.BO"},
-    "Godrej Consumer": {"NSE": "GODREJCP.NS", "BSE": "GODREJCP.BO"},
-    "Pidilite Industries": {"NSE": "PIDILITIND.NS", "BSE": "PIDILITIND.BO"},
-    "Apollo Hospitals": {"NSE": "APOLLOHOSP.NS", "BSE": "APOLLOHOSP.BO"},
-    "Shree Cement": {"NSE": "SHREECEM.NS", "BSE": "SHREECEM.BO"},
-    "Siemens": {"NSE": "SIEMENS.NS", "BSE": "SIEMENS.BO"},
-    "ABB India": {"NSE": "ABB.NS", "BSE": "ABB.BO"},
-    "DLF": {"NSE": "DLF.NS", "BSE": "DLF.BO"},
-    "Indian Oil": {"NSE": "IOC.NS", "BSE": "IOC.BO"},
-    "GAIL": {"NSE": "GAIL.NS", "BSE": "GAIL.BO"},
+    "TCS": "TCS.NS",
+    "Reliance Industries": "RELIANCE.NS",
+    "HDFC Bank": "HDFCBANK.NS",
+    "Infosys": "INFY.NS",
+    "ICICI Bank": "ICICIBANK.NS",
+    "Hindustan Unilever": "HINDUNILVR.NS",
+    "ITC": "ITC.NS",
+    "State Bank of India": "SBIN.NS",
+    "Bharti Airtel": "BHARTIARTL.NS",
+    "Tata Motors": "TATAMOTORS.NS",
+    "Wipro": "WIPRO.NS",
+    "Asian Paints": "ASIANPAINT.NS",
+    "Maruti Suzuki": "MARUTI.NS",
+    "Larsen & Toubro": "LT.NS",
+    "Axis Bank": "AXISBANK.NS",
+    "Bajaj Finance": "BAJFINANCE.NS",
+    "Kotak Mahindra Bank": "KOTAKBANK.NS",
+    "HCL Technologies": "HCLTECH.NS",
+    "Sun Pharma": "SUNPHARMA.NS",
+    "Tata Steel": "TATASTEEL.NS",
+    "Adani Enterprises": "ADANIENT.NS",
+    "Adani Ports": "ADANIPORTS.NS",
+    "Bajaj Auto": "BAJAJ-AUTO.NS",
+    "Bajaj Finserv": "BAJAJFINSV.NS",
+    "Bharat Petroleum": "BPCL.NS",
+    "Britannia": "BRITANNIA.NS",
+    "Cipla": "CIPLA.NS",
+    "Coal India": "COALINDIA.NS",
+    "Divi's Laboratories": "DIVISLAB.NS",
+    "Dr Reddy's Labs": "DRREDDY.NS",
+    "Eicher Motors": "EICHERMOT.NS",
+    "Grasim Industries": "GRASIM.NS",
+    "HDFC Life": "HDFCLIFE.NS",
+    "Hero MotoCorp": "HEROMOTOCO.NS",
+    "Hindalco": "HINDALCO.NS",
+    "IndusInd Bank": "INDUSINDBK.NS",
+    "JSW Steel": "JSWSTEEL.NS",
+    "Mahindra & Mahindra": "M&M.NS",
+    "Nestle India": "NESTLEIND.NS",
+    "NTPC": "NTPC.NS",
+    "ONGC": "ONGC.NS",
+    "Power Grid": "POWERGRID.NS",
+    "Tata Consumer Products": "TATACONSUM.NS",
+    "Tech Mahindra": "TECHM.NS",
+    "Titan Company": "TITAN.NS",
+    "UltraTech Cement": "ULTRACEMCO.NS",
+    "Zomato": "ZOMATO.NS",
+    "Paytm": "PAYTM.NS",
+    "Nykaa": "NYKAA.NS",
+    "Vedanta": "VEDL.NS",
+    "Godrej Consumer": "GODREJCP.NS",
+    "Pidilite Industries": "PIDILITIND.NS",
+    "Apollo Hospitals": "APOLLOHOSP.NS",
+    "Shree Cement": "SHREECEM.NS",
+    "Siemens": "SIEMENS.NS",
+    "ABB India": "ABB.NS",
+    "DLF": "DLF.NS",
+    "Indian Oil": "IOC.NS",
+    "GAIL": "GAIL.NS",
 }
+
+
+def resolve_ticker(user_input):
+    """Resolves a company name from the curated list, or treats the input as a raw ticker."""
+    if user_input in companies:
+        return companies[user_input]
+    cleaned = user_input.strip().upper()
+    if not cleaned:
+        return None
+    if "." not in cleaned:
+        cleaned = cleaned + ".NS"
+    return cleaned
 
 
 def analyze_company(ticker):
@@ -334,22 +370,25 @@ def generate_memo(financials_summary):
 
 
 mode = st.radio("Mode", ["Single Company", "Compare Two Companies"], horizontal=True, label_visibility="collapsed")
-exchange = st.radio("Exchange", ["NSE", "BSE"], horizontal=True)
+
+st.caption("Pick from the list below, or type any NSE ticker directly (e.g. SAFARI, SADBHAV).")
 
 if mode == "Single Company":
-    selected_company = st.selectbox("", options=list(companies.keys()), index=None, placeholder="Search for a company - e.g. HDFC Bank")
+    selected_company = st.selectbox("Quick pick", options=[""] + list(companies.keys()), index=0, label_visibility="collapsed")
+    typed_ticker = st.text_input("Or type a ticker", placeholder="e.g. RELIANCE or RELIANCE.NS")
     generate = st.button("Generate")
 
     if generate:
-        if not selected_company:
-            st.warning("Please select a company.")
+        raw_input = typed_ticker if typed_ticker else selected_company
+        ticker = resolve_ticker(raw_input) if raw_input else None
+        if not ticker:
+            st.warning("Please pick a company or type a ticker.")
         else:
-            ticker = companies[selected_company][exchange]
             with st.spinner("Pulling financials and generating memo..."):
                 try:
                     result = analyze_company(ticker)
                     if result is None:
-                        st.error("Data not available for this ticker. Try a different company.")
+                        st.error("Data not available for this ticker. Check the symbol and try again.")
                     else:
                         render_metrics(result)
                         st.markdown('<div class="memo-label">Recent News</div>', unsafe_allow_html=True)
@@ -363,20 +402,25 @@ if mode == "Single Company":
 else:
     col_a, col_b = st.columns(2)
     with col_a:
-        company_a = st.selectbox("Company A", options=list(companies.keys()), index=None, placeholder="First company", key="company_a")
+        pick_a = st.selectbox("Company A", options=[""] + list(companies.keys()), index=0, key="pick_a")
+        type_a = st.text_input("Or type ticker A", placeholder="e.g. INFY", key="type_a")
     with col_b:
-        company_b = st.selectbox("Company B", options=list(companies.keys()), index=None, placeholder="Second company", key="company_b")
+        pick_b = st.selectbox("Company B", options=[""] + list(companies.keys()), index=0, key="pick_b")
+        type_b = st.text_input("Or type ticker B", placeholder="e.g. WIPRO", key="type_b")
 
     compare = st.button("Compare")
 
     if compare:
-        if not company_a or not company_b:
-            st.warning("Please select both companies.")
+        raw_a = type_a if type_a else pick_a
+        raw_b = type_b if type_b else pick_b
+        ticker_a = resolve_ticker(raw_a) if raw_a else None
+        ticker_b = resolve_ticker(raw_b) if raw_b else None
+
+        if not ticker_a or not ticker_b:
+            st.warning("Please select or type both companies.")
         else:
             with st.spinner("Pulling financials and generating comparison..."):
                 try:
-                    ticker_a = companies[company_a][exchange]
-                    ticker_b = companies[company_b][exchange]
                     result_a = analyze_company(ticker_a)
                     result_b = analyze_company(ticker_b)
 
