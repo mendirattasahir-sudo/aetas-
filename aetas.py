@@ -374,13 +374,11 @@ mode = st.radio("Mode", ["Single Company", "Compare Two Companies"], horizontal=
 st.caption("Pick from the list below, or type any NSE ticker directly (e.g. SAFARI, SADBHAV).")
 
 if mode == "Single Company":
-    selected_company = st.selectbox("Quick pick", options=[""] + list(companies.keys()), index=0, label_visibility="collapsed")
-    typed_ticker = st.text_input("Or type a ticker", placeholder="e.g. RELIANCE or RELIANCE.NS")
+    selected_company = st.selectbox("", options=list(companies.keys()), index=None, placeholder="Search for a company - e.g. HDFC Bank", accept_new_options=True)
     generate = st.button("Generate")
 
     if generate:
-        raw_input = typed_ticker if typed_ticker else selected_company
-        ticker = resolve_ticker(raw_input) if raw_input else None
+        ticker = resolve_ticker(selected_company) if selected_company else None
         if not ticker:
             st.warning("Please pick a company or type a ticker.")
         else:
@@ -402,19 +400,15 @@ if mode == "Single Company":
 else:
     col_a, col_b = st.columns(2)
     with col_a:
-        pick_a = st.selectbox("Company A", options=[""] + list(companies.keys()), index=0, key="pick_a")
-        type_a = st.text_input("Or type ticker A", placeholder="e.g. INFY", key="type_a")
+        company_a = st.selectbox("Company A", options=list(companies.keys()), index=None, placeholder="First company", accept_new_options=True, key="company_a")
     with col_b:
-        pick_b = st.selectbox("Company B", options=[""] + list(companies.keys()), index=0, key="pick_b")
-        type_b = st.text_input("Or type ticker B", placeholder="e.g. WIPRO", key="type_b")
+        company_b = st.selectbox("Company B", options=list(companies.keys()), index=None, placeholder="Second company", accept_new_options=True, key="company_b")
 
     compare = st.button("Compare")
 
     if compare:
-        raw_a = type_a if type_a else pick_a
-        raw_b = type_b if type_b else pick_b
-        ticker_a = resolve_ticker(raw_a) if raw_a else None
-        ticker_b = resolve_ticker(raw_b) if raw_b else None
+        ticker_a = resolve_ticker(company_a) if company_a else None
+        ticker_b = resolve_ticker(company_b) if company_b else None
 
         if not ticker_a or not ticker_b:
             st.warning("Please select or type both companies.")
